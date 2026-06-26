@@ -101,3 +101,52 @@ For example:
 Although the same `MovieCard` component is used three times, each card displays different information because each receives different props.
 
 This helps reduce duplicate code and makes components reusable throughout the application.
+
+# `map()`
+
+`map()` is a built-in JavaScript array method that **iterates through each element of an array and returns a new array**.
+
+In React, `map()` is commonly used to render a list of components from an array of data.
+
+### Example
+
+```jsx
+const movies = [
+    { id: 1, title: "John Wick", releaseDate: "2020" },
+    { id: 2, title: "Batman", releaseDate: "2022" },
+    { id: 3, title: "Iron Man", releaseDate: "2008" },
+];
+```
+
+Here, we have an array of movie objects. We want to display the information for each movie on the webpage.
+
+To do this, we use `map()` to iterate over the array and render a `MovieCard` component for every movie.
+
+```jsx
+{movies.map((movie) => (
+    <MovieCard movie={movie} key={movie.id} />
+))}
+```
+
+### How it works
+
+During each iteration:
+
+* `movie` represents the current movie object in the array.
+* The current `movie` object is passed to the `MovieCard` component as a prop.
+* `key={movie.id}` gives each rendered component a unique identifier, helping React efficiently update and re-render the list.
+
+The `MovieCard` component then receives the `movie` prop and displays its information.
+
+```jsx
+const MovieCard = ({ movie }) => {
+    return (
+        <div className="movie-info">
+            <h3>{movie.title}</h3>
+            <p>{movie.releaseDate}</p>
+        </div>
+    );
+};
+```
+
+Without `map()`, we would have to manually create a `MovieCard` for every movie, which would result in repetitive code. Using `map()` makes the code shorter, cleaner, and scalable, allowing us to render any number of movies dynamically.

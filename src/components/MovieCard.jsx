@@ -6,10 +6,10 @@ const MovieCard = ({movie}) => {
         alert("btn clicked");
     }
   return (
-    <div className='movie-card '>
+    <div className='movie-card flex w-50'>
         <div className='movie-poster'>
             <img src={movie.url} alt={movie.title} />
-            <div className='movie-overlay flex justify-center items-center w-screen h-screen'>
+            <div className='movie-overlay'>
                 <button 
                     className='favorite-btnn bg-red-500 px-2'
                     onClick={onFavoriteClick}>
