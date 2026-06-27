@@ -362,3 +362,286 @@ Similarly,
 renders the `Favorite` component when the URL is `/favorite`.
 
 **Note:** React Router performs **client-side routing**, meaning only the displayed component changes when navigating between pages. The browser does **not** perform a full page refresh, resulting in a smoother and faster user experience.
+
+# API Service Documentation
+
+This file is responsible for communicating with **TMDB (The Movie Database) API**. It contains functions that fetch movie data from the server and return it to the React application.
+
+---
+
+## API Key
+
+```javascript
+const API_KEY = 'YOUR_API_KEY';
+```
+
+* `API_KEY` is the unique key provided by TMDB.
+* It authenticates every request sent to the TMDB server.
+* Without a valid API key, the API will reject the request.
+
+---
+
+## Base URL
+
+```javascript
+const BASE_URL = 'https://api.themoviedb.org/3';
+```
+
+* `BASE_URL` stores the common part of every TMDB endpoint.
+* Instead of writing the complete URL every time, we store it in one variable.
+* This makes the code cleaner and easier to maintain.
+
+Example:
+
+```
+https://api.themoviedb.org/3/movie/popular
+```
+
+Here,
+
+* `https://api.themoviedb.org/3` → Base URL
+* `/movie/popular` → API endpoint
+
+---
+
+# getPopularMovies()
+
+```javascript
+export const getPopularMovies = async () => {
+    const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
+    const data = response.json();
+    return data.results;
+};
+```
+
+### Purpose
+
+Fetches the list of currently popular movies from TMDB.
+
+---
+
+### Step 1
+
+```javascript
+const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
+```
+
+* Sends an HTTP GET request to the TMDB server.
+* `fetch()` contacts the API.
+* `await` pauses the function until the server sends a response.
+
+The generated URL looks like:
+
+```
+https://api.themoviedb.org/3/movie/popular?api_key=YOUR_API_KEY
+```
+
+---
+
+### Step 2
+
+```javascript
+const data = response.json();
+```
+
+* The API returns data in JSON format.
+* `response.json()` converts the response into a JavaScript object.
+
+The returned object looks similar to:
+
+```javascript
+{
+    page: 1,
+    results: [
+        {
+            id: 123,
+            title: "Batman",
+            poster_path: "...",
+            overview: "...",
+            vote_average: 8.2
+        },
+        ...
+    ]
+}
+```
+
+---
+
+### Step 3
+
+```javascript
+return data.results;
+```
+
+Instead of returning the entire object, we only return the `results` array since that's what the application needs.
+
+---
+
+# searchMovies(query)
+
+```javascript
+export const searchMovies = async (query) => {
+    const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+    const data = response.json();
+    return data.results;
+};
+```
+
+### Purpose
+
+Searches for movies using the text entered by the user.
+
+The parameter
+
+```javascript
+query
+```
+
+contains the search text.
+
+Example:
+
+```javascript
+searchMovies("Avengers");
+```
+
+---
+
+### encodeURIComponent()
+
+```javascript
+encodeURIComponent(query)
+```
+
+Converts special characters into URL-safe characters.
+
+Example:
+
+```
+Spider Man
+```
+
+becomes
+
+```
+Spider%20Man
+```
+
+This prevents errors while sending requests.
+
+---
+
+### Generated URL
+
+If the user searches for
+
+```
+Batman
+```
+
+the request becomes
+
+```
+https://api.themoviedb.org/3/movie/popular?api_key=YOUR_API_KEY&query=Batman
+```
+
+---
+
+# async and await
+
+### async
+
+Marks the function as asynchronous so it can perform operations like API requests without blocking the application.
+
+### await
+
+Pauses execution until the API finishes responding.
+
+Without `await`, the function would continue executing before the data had been received.
+
+---
+
+# export
+
+```javascript
+export const getPopularMovies = ...
+```
+
+`export` makes the function available to other files.
+
+Example:
+
+```javascript
+import { getPopularMovies, searchMovies } from "./api";
+```
+
+---
+
+# Flow of Execution
+
+```
+React Component
+       │
+       ▼
+Calls getPopularMovies()
+       │
+       ▼
+fetch() sends request
+       │
+       ▼
+TMDB Server
+       │
+Returns JSON response
+       │
+       ▼
+response.json()
+       │
+       ▼
+Extract data.results
+       │
+       ▼
+Return movies array
+       │
+       ▼
+Display movies on the webpage
+```
+
+---
+
+# Important Correction
+
+The `searchMovies()` function currently uses the **wrong endpoint**:
+
+```javascript
+/movie/popular
+```
+
+The `/movie/popular` endpoint ignores the `query` parameter, so searching will not work.
+
+It should use:
+
+```javascript
+/search/movie
+```
+
+Correct version:
+
+```javascript
+const response = await fetch(
+    `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+);
+```
+
+Also, both functions should use:
+
+```javascript
+const data = await response.json();
+```
+
+instead of
+
+```javascript
+const data = response.json();
+```
+
+because `response.json()` also returns a Promise and must be awaited before accessing `data.results`.
