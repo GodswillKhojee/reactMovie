@@ -834,3 +834,179 @@ const popularMovies = await getPopularMovies();
 it would execute every time the component re-renders, causing repeated API requests and potentially an infinite loop.
 
 By placing the API call inside `useEffect` with an empty dependency array (`[]`), the request runs only once when the Home component first mounts, making the application efficient and preventing unnecessary network calls.
+
+
+# Search Functionality (`handleSearch`)
+
+The `handleSearch()` function is executed whenever the user submits the search form. Its purpose is to fetch movies from the TMDB API based on the search query entered by the user and update the application with the search results.
+
+---
+
+## Function Definition
+
+```jsx
+const handleSearch = async (e) => {
+```
+
+The function is declared as `async` because searching for movies requires an API request, which is an asynchronous operation.
+
+The parameter `e` represents the form submission event.
+
+---
+
+## Validate Search Input
+
+```jsx
+if (!searchQuery.trim()) return;
+```
+
+Before making the API request, the search input is validated.
+
+* `trim()` removes leading and trailing spaces.
+* If the input is empty after trimming, the function stops executing.
+
+This prevents unnecessary API requests for empty searches.
+
+---
+
+## Prevent Multiple Requests
+
+```jsx
+if (loading) return;
+```
+
+If an API request is already in progress (`loading` is `true`), the function exits immediately.
+
+This prevents the user from sending multiple search requests by clicking the search button repeatedly.
+
+---
+
+## Start Loading
+
+```jsx
+setLoading(true);
+```
+
+Before sending the request, the loading state is set to `true`.
+
+This allows the application to display a loading indicator while waiting for the API response.
+
+---
+
+## Search Movies
+
+```jsx
+const searchResults = await searchMovies(searchQuery);
+```
+
+The `searchMovies()` function is called with the user's search query.
+
+This function sends a request to the TMDB API and waits until the server returns the matching movies.
+
+The returned movie list is stored inside:
+
+```jsx
+searchResults
+```
+
+---
+
+## Update Movie List
+
+```jsx
+setMovies(searchResults);
+```
+
+The retrieved search results replace the current movie list stored in the `movies` state.
+
+React automatically re-renders the component and displays the searched movies.
+
+---
+
+## Clear Previous Errors
+
+```jsx
+setError(null);
+```
+
+If a previous search failed, an error message may already be displayed.
+
+After a successful search, the error state is cleared so that the message disappears.
+
+---
+
+## Error Handling
+
+```jsx
+catch (error) {
+    console.log(error);
+    setError("failed to search the movie..");
+}
+```
+
+If the API request fails due to a network issue or server error:
+
+* The error is logged to the browser console.
+* A user-friendly error message is stored in the `error` state.
+* The application displays the error message instead of crashing.
+
+---
+
+## Stop Loading
+
+```jsx
+finally {
+    setLoading(false);
+}
+```
+
+The `finally` block always executes, regardless of whether the search succeeds or fails.
+
+It changes the loading state back to `false`, allowing the loading indicator to disappear and enabling future searches.
+
+---
+
+# Execution Flow
+
+```text
+User Types Movie Name
+          │
+          ▼
+Clicks Search Button
+          │
+          ▼
+handleSearch() Executes
+          │
+          ▼
+preventDefault()
+          │
+          ▼
+Validate Search Input
+          │
+          ▼
+Set loading = true
+          │
+          ▼
+Call searchMovies(searchQuery)
+          │
+          ▼
+TMDB API Request
+          │
+          ▼
+Receive Search Results
+          │
+          ▼
+setMovies(searchResults)
+          │
+          ▼
+Clear Previous Errors
+          │
+          ▼
+setLoading(false)
+          │
+          ▼
+React Re-renders
+          │
+          ▼
+Display Matching Movies
+```

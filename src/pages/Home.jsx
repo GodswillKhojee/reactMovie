@@ -27,10 +27,24 @@ const Home = () => {
         loadPopularMovie();
     }, [])
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         e.preventDefault(); // prevent default behaviour
-        alert(searchQuery);
-        // setSearchQuery("kam kkr apna")
+
+        if(!searchQuery.trim()) return;
+        if(loading) return;
+
+        setLoading(true);
+        try {
+            const searchResults = await searchMovies(searchQuery);
+            setMovies(searchResults);
+            setError(null);
+        } catch (error) {
+            console.log(error);
+            setError("failed to search the movie..")
+        }
+        finally{
+            setLoading(false);
+        }
     };
     return (
         <div className='Home '>
