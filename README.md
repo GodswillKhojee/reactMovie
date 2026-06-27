@@ -223,3 +223,142 @@ setSearchQuery("");
 ```
 
 This resets the input field because its value is controlled by the `searchQuery` state.
+
+# Page Routing
+
+To navigate between different pages in our React application, we use **React Router**.
+
+## Step 1: Install React Router
+
+Run the following command:
+
+```bash
+npm install react-router-dom
+```
+
+---
+
+## Step 2: Wrap the App with `BrowserRouter`
+
+In `main.jsx`, wrap the `App` component with `BrowserRouter`.
+
+```jsx
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+
+createRoot(document.getElementById("root")).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
+```
+
+`BrowserRouter` enables client-side routing and provides routing functionality to every component inside the application.
+
+---
+
+## Step 3: Create the Navigation Bar
+
+Create a new file named `NavBar.jsx` inside the `components` folder.
+
+Import the `Link` component:
+
+```jsx
+import { Link } from "react-router-dom";
+```
+
+`NavBar.jsx`
+
+```jsx
+import { Link } from "react-router-dom";
+
+const NavBar = () => {
+  return (
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <Link to="/">Movie App</Link>
+      </div>
+
+      <div className="navbar-links">
+        <Link to="/" className="nav-link">
+          Home
+        </Link>
+
+        <Link to="/favorite" className="nav-link">
+          Favorite
+        </Link>
+      </div>
+    </nav>
+  );
+};
+
+export default NavBar;
+```
+
+### Why use `Link` instead of `<a>`?
+
+`Link` allows navigation between pages **without reloading the browser**, making the application faster and preserving the React state.
+
+The `to` prop specifies the route to navigate to.
+
+```jsx
+<Link to="/">Home</Link>
+```
+
+---
+
+## Step 4: Configure the Routes
+
+In `App.jsx`, import the required components.
+
+```jsx
+import Home from "./pages/Home";
+import Favorite from "./pages/Favorite";
+
+import NavBar from "./components/NavBar";
+
+import { Routes, Route } from "react-router-dom";
+```
+
+Now define the routes:
+
+```jsx
+return (
+  <>
+    <NavBar />
+
+    <main className="main-content">
+      <Routes>
+        <Route path="/" element={<Home />} />
+
+        <Route path="/favorite" element={<Favorite />} />
+      </Routes>
+    </main>
+  </>
+);
+```
+
+---
+
+## Understanding `Routes` and `Route`
+
+`Routes` is a container that holds all the routes in your application.
+
+Each `Route` maps a URL path to a React component.
+
+```jsx
+<Route path="/" element={<Home />} />
+```
+
+- `path="/"` → Matches the Home page.
+- `element={<Home />}` → Renders the `Home` component when the URL is `/`.
+
+Similarly,
+
+```jsx
+<Route path="/favorite" element={<Favorite />} />
+```
+
+renders the `Favorite` component when the URL is `/favorite`.
+
+**Note:** React Router performs **client-side routing**, meaning only the displayed component changes when navigating between pages. The browser does **not** perform a full page refresh, resulting in a smoother and faster user experience.
