@@ -645,3 +645,192 @@ const data = response.json();
 ```
 
 because `response.json()` also returns a Promise and must be awaited before accessing `data.results`.
+
+
+# Fetching Movies using `useEffect` and TMDB API
+
+The Home component loads the list of popular movies as soon as the page opens. This is achieved using React's `useEffect` hook along with an API call to TMDB.
+
+---
+
+# `useEffect`
+
+```jsx
+useEffect(() => {
+    const loadPopularMovie = async () => {
+        try {
+            const popularMovies = await getPopularMovies();
+            setMovies(popularMovies);
+        } catch (err) {
+            console.log(err);
+            setError("failed to load the movie....");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    loadPopularMovie();
+}, []);
+```
+
+## Purpose
+
+`useEffect` is a React Hook that allows us to perform side effects such as:
+
+* Fetching data from an API
+* Making network requests
+* Setting timers
+* Adding event listeners
+
+In this project, it is used to fetch the list of popular movies from TMDB when the Home component is first loaded.
+
+---
+
+## Empty Dependency Array
+
+```jsx
+[], 
+```
+
+The empty dependency array tells React:
+
+> Run this effect only once after the component is rendered.
+
+Without the empty array, the API request would execute every time the component re-renders, resulting in unnecessary requests.
+
+---
+
+# Loading Popular Movies
+
+Inside `useEffect`, an asynchronous function named `loadPopularMovie()` is created.
+
+```jsx
+const loadPopularMovie = async () => {
+```
+
+The function is marked as `async` because fetching data from an API takes time.
+
+---
+
+## API Call
+
+```jsx
+const popularMovies = await getPopularMovies();
+```
+
+This line calls the `getPopularMovies()` function from the API service.
+
+`await` pauses execution until the server returns the movie data.
+
+After receiving the response, the movies are stored in:
+
+```jsx
+popularMovies
+```
+
+---
+
+## Updating State
+
+```jsx
+setMovies(popularMovies);
+```
+
+The received movies are saved into the `movies` state.
+
+Updating the state automatically causes React to re-render the component and display the movie cards.
+
+---
+
+## Error Handling
+
+```jsx
+catch (err) {
+    console.log(err);
+    setError("failed to load the movie....");
+}
+```
+
+If the API request fails due to network issues or an invalid response:
+
+* The error is logged in the console.
+* An error message is stored in the `error` state.
+* The UI can display this message to the user.
+
+---
+
+## Loading State
+
+```jsx
+finally {
+    setLoading(false);
+}
+```
+
+The `finally` block always executes, whether the API request succeeds or fails.
+
+Initially:
+
+```jsx
+loading = true;
+```
+
+After the request completes:
+
+```jsx
+loading = false;
+```
+
+This allows the application to stop displaying the loading indicator and either show the movies or display an error message.
+
+---
+
+# Execution Flow
+
+```text
+Home Component Loads
+        │
+        ▼
+Component Renders
+        │
+        ▼
+useEffect Executes
+        │
+        ▼
+loadPopularMovie() is called
+        │
+        ▼
+getPopularMovies()
+        │
+        ▼
+TMDB API Request
+        │
+        ▼
+Server Returns Movie Data
+        │
+        ▼
+setMovies(popularMovies)
+        │
+        ▼
+setLoading(false)
+        │
+        ▼
+React Re-renders
+        │
+        ▼
+Movie Cards are Displayed
+```
+
+---
+
+# Why `useEffect` is Used
+
+If the API function were called directly inside the component:
+
+```jsx
+const popularMovies = await getPopularMovies();
+```
+
+it would execute every time the component re-renders, causing repeated API requests and potentially an infinite loop.
+
+By placing the API call inside `useEffect` with an empty dependency array (`[]`), the request runs only once when the Home component first mounts, making the application efficient and preventing unnecessary network calls.
