@@ -155,7 +155,7 @@ Without `map()`, we would have to manually create a `MovieCard` for every movie,
 
 State is a special object (or value) in React that stores data that can change over time.
 
-Whenever the state changes, React automatically re-renders the component to update the UI.
+Whenever the state changes, React automatically re-renders the entire component to update the UI.
 
 First, import the `useState` hook:
 
@@ -169,7 +169,7 @@ Inside your component, create a state variable:
 const [searchQuery, setSearchQuery] = useState("");
 ```
 
-- `searchQuery` → The current state value.
+- `searchQuery` → The current state value and stores the date after the re-renders.
 - `setSearchQuery` → A function used to update the state.
 - `""` → The initial state value.
 

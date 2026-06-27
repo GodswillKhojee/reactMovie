@@ -28,8 +28,9 @@ const Home = () => {
                 <button type='submit' className='search-btn'>Search</button>
             </form>
             <div className='movie-grid'>
-                {movies.map((movie) => (
-                    <MovieCard movie={movie} key={movie.id} />
+                
+                {movies.map((movie) => // using conditional rendering || but will use API to search the movies
+                    movie.title.toLowerCase().startsWith(searchQuery) && (<MovieCard movie={movie} key={movie.id} />
                 ))}
             </div>
         </div>
