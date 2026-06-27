@@ -150,3 +150,76 @@ const MovieCard = ({ movie }) => {
 ```
 
 Without `map()`, we would have to manually create a `MovieCard` for every movie, which would result in repetitive code. Using `map()` makes the code shorter, cleaner, and scalable, allowing us to render any number of movies dynamically.
+
+# State
+
+State is a special object (or value) in React that stores data that can change over time.
+
+Whenever the state changes, React automatically re-renders the component to update the UI.
+
+First, import the `useState` hook:
+
+```jsx
+import { useState } from "react";
+```
+
+Inside your component, create a state variable:
+
+```jsx
+const [searchQuery, setSearchQuery] = useState("");
+```
+
+- `searchQuery` → The current state value.
+- `setSearchQuery` → A function used to update the state.
+- `""` → The initial state value.
+
+## Binding the Input
+
+Connect the state to the input field using the `value` and `onChange` props.
+
+```jsx
+<input
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+/>
+```
+
+- `value={searchQuery}` makes the input a **controlled component**, meaning its value is controlled by React state.
+- `onChange` is triggered whenever the user types in the input.
+- `e.target.value` contains the current text entered by the user.
+- `setSearchQuery(e.target.value)` updates the state with the latest input value.
+
+## Handling Form Submission
+
+Our goal is to display whatever the user types into the input field when the form is submitted.
+
+```jsx
+const handleSearch = (e) => {
+  e.preventDefault(); // Prevents the form from reloading the page.
+  alert(searchQuery);
+
+  // setSearchQuery("");
+};
+```
+
+### `preventDefault()`
+
+By default, submitting a form refreshes the page, which clears the input and resets the component.
+
+Calling:
+
+```jsx
+e.preventDefault();
+```
+
+prevents the default form submission behavior, allowing React to handle the submission without reloading the page.
+
+> **Note:** `preventDefault()` prevents the **form submission** (page reload), **not** the input value from reloading.
+
+You can also clear the input after submission by updating the state:
+
+```jsx
+setSearchQuery("");
+```
+
+This resets the input field because its value is controlled by the `searchQuery` state.
