@@ -1010,3 +1010,438 @@ React Re-renders
           ▼
 Display Matching Movies
 ```
+
+
+# Movie Context (Global State Management)
+
+This file creates a global context for managing the user's favorite movies. Instead of passing the favorites list through props to every component, React Context allows any component in the application to access and update the favorites directly.
+
+---
+
+## Imports
+
+```jsx
+import {
+  useEffect,
+  useState,
+  createContext,
+  useContext,
+} from "react";
+```
+
+### Hooks Used
+
+- `useState` → Stores the list of favorite movies.
+- `useEffect` → Performs side effects such as reading from and writing to `localStorage`.
+- `createContext` → Creates a global context.
+- `useContext` → Allows components to access the context.
+
+---
+
+# Creating the Context
+
+```jsx
+const MovieContext = createContext();
+```
+
+A context object is created.
+
+This object will hold all the data related to favorite movies and make it accessible anywhere inside the application.
+
+---
+
+# Custom Hook
+
+```jsx
+export const useMovieContext = () => useContext(MovieContext);
+```
+
+Instead of writing
+
+```jsx
+const value = useContext(MovieContext);
+```
+
+inside every component, a custom hook is created.
+
+Now any component can simply do
+
+```jsx
+const {
+  favorites,
+  addToFavorites,
+  removeFromFavorites,
+  isFavorite
+} = useMovieContext();
+```
+
+This makes the code cleaner and easier to read.
+
+---
+
+# MovieProvider Component
+
+```jsx
+export const MovieProvider = ({ children }) => {
+```
+
+`MovieProvider` wraps the application and provides the context to every child component.
+
+Example:
+
+```jsx
+<MovieProvider>
+    <App />
+</MovieProvider>
+```
+
+Everything inside `<MovieProvider>` can access the favorite movies.
+
+---
+
+# State
+
+```jsx
+const [favorites, setFavorites] = useState([]);
+```
+
+Stores all favorite movies.
+
+Initially the array is empty.
+
+Example:
+
+```jsx
+favorites = [
+    {
+        id: 12,
+        title: "Batman"
+    },
+    {
+        id: 21,
+        title: "John Wick"
+    }
+]
+```
+
+---
+
+# Loading Favorites from Local Storage
+
+```jsx
+useEffect(() => {
+    const storedFav = localStorage.getItem("favorites");
+
+    if (storedFav)
+        setFavorites(JSON.parse(storedFav));
+}, []);
+```
+
+This effect runs **only once** when the application loads because of the empty dependency array.
+
+Steps:
+
+1. Look for `"favorites"` inside localStorage.
+2. If it exists,
+3. Convert the stored JSON string into a JavaScript array.
+4. Store it inside the React state.
+
+Example:
+
+localStorage stores
+
+```text
+"[{"id":1,"title":"Batman"}]"
+```
+
+After
+
+```jsx
+JSON.parse(storedFav)
+```
+
+it becomes
+
+```jsx
+[
+    {
+        id:1,
+        title:"Batman"
+    }
+]
+```
+
+---
+
+# Saving Favorites
+
+```jsx
+useEffect(() => {
+    localStorage.setItem(
+        "favorites",
+        JSON.stringify(favorites)
+    );
+}, [favorites]);
+```
+
+Whenever the favorites array changes, this effect runs automatically.
+
+Example:
+
+```jsx
+favorites = [
+    { id:1, title:"Batman" }
+]
+```
+
+becomes
+
+```text
+"[{"id":1,"title":"Batman"}]"
+```
+
+using
+
+```jsx
+JSON.stringify(favorites)
+```
+
+and is stored in localStorage.
+
+This ensures favorites remain available even after refreshing the browser.
+
+---
+
+# addToFavorites()
+
+```jsx
+const addToFavorites = (movie) => {
+    setFavorites(prev => [...prev, movie]);
+}
+```
+
+Adds a movie to the favorites array.
+
+Example:
+
+Before
+
+```jsx
+[
+    Batman
+]
+```
+
+After adding
+
+```jsx
+Iron Man
+```
+
+Result
+
+```jsx
+[
+    Batman,
+    Iron Man
+]
+```
+
+The spread operator (`...prev`) copies all previous favorites and appends the new movie.
+
+---
+
+# removeFromFavorites()
+
+```jsx
+const removeFromFavorites = (movieId) => {
+    setFavorites(prev =>
+        prev.filter(movie => movie.id !== movieId)
+    );
+}
+```
+
+Removes a movie from favorites.
+
+Example:
+
+Before
+
+```jsx
+[
+    Batman,
+    Iron Man,
+    Avengers
+]
+```
+
+Removing
+
+```jsx
+Iron Man
+```
+
+Result
+
+```jsx
+[
+    Batman,
+    Avengers
+]
+```
+
+`filter()` creates a new array excluding the selected movie.
+
+---
+
+# isFavorite()
+
+```jsx
+const isFavorite = (movieId) => {
+    return favorites.some(
+        movie => movie.id === movieId
+    );
+}
+```
+
+Checks whether a movie is already in favorites.
+
+Returns
+
+```jsx
+true
+```
+
+or
+
+```jsx
+false
+```
+
+Example
+
+```jsx
+favorites = [
+    { id:5 }
+]
+```
+
+```jsx
+isFavorite(5)
+```
+
+returns
+
+```jsx
+true
+```
+
+while
+
+```jsx
+isFavorite(10)
+```
+
+returns
+
+```jsx
+false
+```
+
+---
+
+# Context Value
+
+```jsx
+const value = {
+    favorites,
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite
+}
+```
+
+Everything that needs to be shared globally is stored inside this object.
+
+Other components receive this object through `useMovieContext()`.
+
+---
+
+# Provider
+
+```jsx
+return (
+    <MovieContext.Provider value={value}>
+        {children}
+    </MovieContext.Provider>
+);
+```
+
+The Provider makes the context available to all nested components.
+
+Without wrapping the application inside `MovieProvider`, `useMovieContext()` will not work.
+
+---
+
+# Data Flow
+
+```
+MovieProvider
+      │
+      ▼
+favorites (state)
+      │
+      ├── addToFavorites()
+      │
+      ├── removeFromFavorites()
+      │
+      ├── isFavorite()
+      │
+      ▼
+MovieContext.Provider
+      │
+      ▼
+Any Component
+      │
+      ▼
+useMovieContext()
+```
+
+---
+
+# Why Context API?
+
+Without Context:
+
+```
+App
+ │
+ ├── Home
+ │     │
+ │     └── MovieCard
+ │
+ └── Favorites
+```
+
+The favorites state would have to be passed like this:
+
+```
+App
+ │
+ ├── Home
+ │     │
+ │     └── MovieCard
+ │           │
+ │           favorites
+ │
+ └── Favorites
+       │
+       favorites
+```
+
+This is called **Prop Drilling**.
+
+Context eliminates this problem by allowing every component to access the data directly.
+
+
+
